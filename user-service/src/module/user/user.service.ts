@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class UserService {
   private readonly users = new Map<string, any>();
-  constructor() {}
+  constructor(@Inject('JOB_SERVICE') private jobClient: ClientProxy) {}
 
   async createProfile(profileDto: any) {
     const profile = {
@@ -13,6 +14,7 @@ export class UserService {
     };
 
     this.users.set(profileDto.userId, profile);
+    this.jobClient.emit('user.profile.updated', profile);
     return profile;
   }
 
@@ -23,12 +25,14 @@ export class UserService {
 
   async updateProfile(userId: string, skills: string[]) {
     const user = this.users.get(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
+    // if (!user) {
+    //   throw new Error('User not found');
+    // }
 
     user.skills = skills;
-    this.users.set(userId, user);
+    // this.users.set(userId, user);
+
+    this.jobClient.emit('user.profile.updated', user);
     return user;
   }
 }

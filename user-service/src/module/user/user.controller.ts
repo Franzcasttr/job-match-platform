@@ -17,7 +17,7 @@ export class UserController {
   }
 
   @MessagePattern('user.update.skills')
-  async updateProfile(userId: string, skills: string[]) {
-    return this.userService.updateProfile(userId, skills);
+  async updateProfile(data: any) {
+    return this.userService.updateProfile(data.userId, data.skills);
   }
 }

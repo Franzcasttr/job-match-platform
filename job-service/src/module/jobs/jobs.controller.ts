@@ -23,7 +23,7 @@ export class JobsController {
 
   @EventPattern('user.profile.updated')
   handleProfileUpdate(profile: any) {
-    if (profile.type === 'CANDIDATE') {
+    if (profile.role === 'CANDIDATE') {
       this.jobsService.registerCandidate(profile);
     }
   }

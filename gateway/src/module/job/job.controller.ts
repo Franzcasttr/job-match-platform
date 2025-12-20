@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Controller('jobs')
@@ -6,17 +6,17 @@ export class JobController {
   constructor(@Inject('JOB_SERVICE') private jobClient: ClientProxy) {}
 
   @Post()
-  createJob(data: any) {
+  createJob(@Body() data: any) {
     return this.jobClient.send('job.create', data);
   }
 
   @Get('employer/matches')
-  getEmployerMatches(employerId: string) {
+  getEmployerMatches(@Query('employerId') employerId: string) {
     return this.jobClient.send('job.matches.employer', employerId);
   }
 
   @Get('candidate/matches')
-  getCandidateMatches(candidateId: string) {
+  getCandidateMatches(@Query('candidateId') candidateId: string) {
     return this.jobClient.send('job.matches.candidate', candidateId);
   }
 }

@@ -12,6 +12,8 @@ services:
       - MYSQL_DATABASE=job_platform
     ports:
       - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   gateway:
     build: ./gateway
@@ -22,24 +24,37 @@ services:
 
   auth-service:
     build: ./auth-service
+    environment:
+      - DATABASE_URL=mysql://root:password@mysql:3306/job_platform
+    # volumes:
+    #   - ./auth-service:/usr/src/app
+    #   - /usr/src/app/node_modules
     depends_on:
       - redis
       - mysql
 
-  user-service:
-    build: ./user-service
-    depends_on:
-      - redis
-      - mysql
+  # user-service:
+  #   build: ./user-service
+  #   depends_on:
+  #     - redis
+  #     - mysql
 
-  job-service:
-    build: ./job-service
-    depends_on:
-      - redis
-      - mysql
+  # job-service:
+  #   build: ./job-service
+  #   depends_on:
+  #     - redis
+  #     - mysql
 
-  chat-service:
-    build: ./chat-service
-    depends_on:
-      - redis
-      - mysql
+  # chat-service:
+  #   build: ./chat-service
+  #   ports:
+  #     - 3004:3004
+  #   depends_on:
+  #     - redis
+
+volumes:
+  mysql_data:
+
+networks:
+  default:
+    driver: bridge

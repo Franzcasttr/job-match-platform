@@ -1,16 +1,17 @@
-FROM node:20-alpine
+FROM node:24-alpine
 
-RUN apk add --no-cache openssl bash nano
+RUN apk add --no-cache bash openssl nano
 
 WORKDIR /usr/src/app
 
+# Copy only package.json for faster install
 COPY package*.json ./
-# COPY prisma ./prisma/
+RUN npm install
 
-RUN npm ci
-
+# Copy the rest
 COPY . .
 
 EXPOSE 8000
 
-CMD ["npm", "run", "start:dev"]
+# Runtime Prisma generate ensures client exists after bind mount
+CMD ["sh", "-c", "npx prisma generate && npm run start:dev"]

@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Roles } from 'src/common/decorator/roles.decorator';
 
 @Controller('jobs')
 export class JobController {
   constructor(@Inject('JOB_SERVICE') private jobClient: ClientProxy) {}
-
+  @Roles('EMPLOYER')
   @Post()
   createJob(@Body() data: any) {
     return this.jobClient.send('job.create', data);

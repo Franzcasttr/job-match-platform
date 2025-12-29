@@ -1,17 +1,30 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ChatService {
-  message = [];
+  constructor(private prisma: PrismaService) {}
 
-  saveMessage(message: any) {
-    this.message.push(message);
-    return message;
+  async saveMessage(message: {
+    conversationId: string;
+    senderId: string;
+    text: string;
+  }) {
+    const text = await this.prisma.message.create({
+      data: {
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        text: message.text,
+      },
+    });
+    return text;
   }
 
-  getMessages(conversationId: string) {
-    return this.message.filter(
-      (message) => message.conversationId === conversationId,
-    );
+  async getMessages(conversationId: string) {
+    const message = await this.prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return message;
   }
 }

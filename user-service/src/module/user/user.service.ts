@@ -24,6 +24,7 @@ export class UserService {
       update: profileDto.profile,
       create: {
         id: profileDto.userId,
+        role: profileDto.role,
         ...profileDto.profile,
       },
     });

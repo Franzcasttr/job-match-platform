@@ -8,23 +8,28 @@ services:
     image: redis:7
     ports:
       - '6379:6379'
-#   mysql:
-#     image: mysql:8
-#     environment:
-#       MYSQL_ROOT_PASSWORD: password
-#     ports:
-#       - '3306:3306'
-#     volumes:
-#       - mysql_data:/var/lib/mysql
-#     healthcheck:
-#       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
-#       interval: 5s
-#       timeout: 10s
-#       retries: 10
+    # networks:
+    #   - app-network
 
-#   # =========================
-#   # API Gateway
-#   # =========================
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    # networks:
+    #   - app-network
+
+  # =========================
+  # API Gateway
+  # =========================
 #   gateway:
 #     build:
 #       context: ./gateway
@@ -35,15 +40,21 @@ services:
 #       - redis
 #     volumes:
 #       - ./gateway:/usr/src/app
-#       - gateway_node_modules:/usr/src/app/node_modules
+#       - /usr/src/app/node_modules
+#     environment:
+#       - NODE_ENV=development
 #     command: npm run start:dev
-#     restart: on-failure
+#     restart: unless-stopped
+#     networks:
+#       - app-network
 
 #   # =========================
 #   # Auth Service
 #   # =========================
 #   auth-service:
-#     build: ./auth-service
+#     build:
+#       context: ./auth-service
+#       dockerfile: Dockerfile
 #     depends_on:
 #       mysql:
 #         condition: service_healthy
@@ -51,17 +62,22 @@ services:
 #         condition: service_started
 #     environment:
 #       DATABASE_URL: mysql://root:password@mysql:3306/auth_db
+#       NODE_ENV: development
 #     volumes:
 #       - ./auth-service:/usr/src/app
-#       - auth_node_modules:/usr/src/app/node_modules
-#     command: sh -c "npx prisma migrate dev && npm run start:dev"
-#     restart: on-failure
+#       - /usr/src/app/node_modules
+#     command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+#     restart: unless-stopped
+#     networks:
+#       - app-network
 
 #   # =========================
 #   # User Service
 #   # =========================
 #   user-service:
-#     build: ./user-service
+#     build:
+#       context: ./user-service
+#       dockerfile: Dockerfile
 #     depends_on:
 #       mysql:
 #         condition: service_healthy
@@ -69,17 +85,22 @@ services:
 #         condition: service_started
 #     environment:
 #       DATABASE_URL: mysql://root:password@mysql:3306/user_db
+#       NODE_ENV: development
 #     volumes:
 #       - ./user-service:/usr/src/app
-#       - user_node_modules:/usr/src/app/node_modules
-#     command: sh -c "npx prisma migrate dev && npm run start:dev"
-#     restart: on-failure
+#       - /usr/src/app/node_modules
+#     command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+#     restart: unless-stopped
+#     networks:
+#       - app-network
 
 #   # =========================
 #   # Job Service
 #   # =========================
 #   job-service:
-#     build: ./job-service
+#     build:
+#       context: ./job-service
+#       dockerfile: Dockerfile
 #     depends_on:
 #       mysql:
 #         condition: service_healthy
@@ -87,17 +108,22 @@ services:
 #         condition: service_started
 #     environment:
 #       DATABASE_URL: mysql://root:password@mysql:3306/job_db
+#       NODE_ENV: development
 #     volumes:
 #       - ./job-service:/usr/src/app
-#       - job_node_modules:/usr/src/app/node_modules
-#     command: sh -c "npx prisma migrate dev && npm run start:dev"
-#     restart: on-failure
+#       - /usr/src/app/node_modules
+#     command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+#     restart: unless-stopped
+#     networks:
+#       - app-network
 
 #   # =========================
 #   # Chat Service
 #   # =========================
 #   chat-service:
-#     build: ./chat-service
+#     build:
+#       context: ./chat-service
+#       dockerfile: Dockerfile
 #     ports:
 #       - '3004:3004'
 #     depends_on:
@@ -107,16 +133,18 @@ services:
 #         condition: service_started
 #     environment:
 #       DATABASE_URL: mysql://root:password@mysql:3306/chat_db
+#       NODE_ENV: development
 #     volumes:
 #       - ./chat-service:/usr/src/app
-#       - chat_node_modules:/usr/src/app/node_modules
-#     command: sh -c "npx prisma migrate dev && npm run start:dev"
-#     restart: on-failure
+#       - /usr/src/app/node_modules
+#     command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+#     restart: unless-stopped
+#     networks:
+#       - app-network
 
-# volumes:
-#   mysql_data:
-#   gateway_node_modules:
-#   auth_node_modules:
-#   user_node_modules:
-#   job_node_modules:
-#   chat_node_modules:
+# networks:
+#   app-network:
+#     driver: bridge
+
+volumes:
+  mysql_data:
